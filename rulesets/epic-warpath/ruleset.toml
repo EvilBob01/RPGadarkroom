@@ -1,0 +1,651 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Epic Warpath — Space Theme Ruleset
+# Tabletop game: Epic Warpath by Mantic Games
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[meta]
+id             = "epic-warpath"
+name           = "Epic Warpath"
+theme          = "space"
+tabletop_game  = "Epic Warpath by Mantic Games"
+version        = "1.0"
+description    = "Forge a galactic dominion. Mine asteroid fields, fabricate war machines, and marshal forces across the void."
+
+# ─── UI Labels ────────────────────────────────────────────────────────────────
+[ui]
+empire_label         = "Dominion"
+territory_label      = "Sector"
+worker_label         = "Operative"
+worker_label_plural  = "Operatives"
+building_label       = "Installation"
+building_label_plural = "Installations"
+army_label           = "Battlegroup"
+army_label_plural    = "Battlegroups"
+scout_label          = "Recon Drone"
+scout_label_plural   = "Recon Drones"
+currency_label       = "Credits"
+
+# ─── Balance ──────────────────────────────────────────────────────────────────
+[balance]
+action_points_per_day     = 100
+ap_refresh_hour_utc       = 6        # 06:00 UTC daily reset
+max_session_minutes       = 120      # hard cap on active play per day
+starting_resources        = { ore = 100, rations = 50, fuel = 30 }
+starting_action_points    = 50       # bonus AP on first login to a new campaign
+
+# ─── Map ──────────────────────────────────────────────────────────────────────
+[map]
+chunk_size          = 16             # tiles per chunk edge (16×16 = 256 tiles)
+starting_chunk_radius = 2            # chunks revealed around homeworld at start
+base_vision_range   = 3             # tiles visible from any owned building
+fog_decay_turns     = 0             # 0 = permanent once revealed; >0 = re-fogs after N turns
+
+[[map.biomes]]
+id       = "void"
+name     = "Deep Void"
+weight   = 35
+color    = "#0a0a1a"
+passable = true
+resource_bonus = {}
+
+[[map.biomes]]
+id       = "asteroid_field"
+name     = "Asteroid Field"
+weight   = 25
+color    = "#2a2a3e"
+passable = true
+resource_bonus = { ore = 1.5 }
+
+[[map.biomes]]
+id       = "nebula"
+name     = "Nebula Cloud"
+weight   = 15
+color    = "#1a0a2e"
+passable = true
+resource_bonus = { fuel = 1.25 }
+
+[[map.biomes]]
+id       = "debris_field"
+name     = "Debris Field"
+weight   = 10
+color    = "#3a2a2a"
+passable = true
+resource_bonus = { scrap_alloy = 1.5 }
+
+[[map.biomes]]
+id       = "stable_orbit"
+name     = "Stable Orbit"
+weight   = 10
+color    = "#0a1a2a"
+passable = true
+resource_bonus = {}
+
+[[map.biomes]]
+id       = "planet"
+name     = "Planet"
+weight   = 5
+color    = "#1a3a1a"
+passable = false
+resource_bonus = { ore = 2.0, bio_matter = 2.0 }
+
+# ─── Landmarks ────────────────────────────────────────────────────────────────
+[[map.landmarks]]
+id         = "derelict_station"
+name       = "Derelict Station"
+min_radius = 5
+max_radius = 25
+rarity     = 0.04
+loot_table = "derelict"
+
+[[map.landmarks]]
+id         = "ore_deposit"
+name       = "Rich Ore Deposit"
+min_radius = 3
+max_radius = 20
+rarity     = 0.06
+loot_table = "ore_deposit"
+
+[[map.landmarks]]
+id         = "alien_ruins"
+name       = "Alien Ruins"
+min_radius = 10
+max_radius = 30
+rarity     = 0.02
+loot_table = "alien_ruins"
+
+[[map.landmarks]]
+id         = "fuel_cloud"
+name       = "Fuel Cloud"
+min_radius = 4
+max_radius = 20
+rarity     = 0.05
+loot_table = "fuel_cloud"
+
+# ─── Resources ────────────────────────────────────────────────────────────────
+
+# Raw Materials
+[[resources]]
+id          = "ore"
+name        = "Ore"
+category    = "raw"
+icon        = "⛏️"
+color       = "#8a7a6a"
+description = "Raw mineral ore extracted from asteroid fields and deposits."
+base_value  = 1
+max_store   = 5000
+
+[[resources]]
+id          = "bio_matter"
+name        = "Bio-Matter"
+category    = "raw"
+icon        = "🧬"
+color       = "#4a8a4a"
+description = "Organic compounds harvested from habitable zones."
+base_value  = 2
+max_store   = 3000
+
+[[resources]]
+id          = "fuel"
+name        = "Fuel"
+category    = "raw"
+icon        = "⚡"
+color       = "#e8a020"
+description = "Unrefined propellant siphoned from nebula clouds."
+base_value  = 2
+max_store   = 3000
+
+[[resources]]
+id          = "coolant"
+name        = "Coolant"
+category    = "raw"
+icon        = "❄️"
+color       = "#4a8aba"
+description = "Thermal regulation fluid required by heavy machinery."
+base_value  = 1
+max_store   = 2000
+
+[[resources]]
+id          = "scrap_alloy"
+name        = "Scrap Alloy"
+category    = "raw"
+icon        = "🔩"
+color       = "#6a6a7a"
+description = "Salvaged metal plating stripped from derelict ships."
+base_value  = 3
+max_store   = 2000
+
+# Processed Materials
+[[resources]]
+id          = "alloy_plates"
+name        = "Alloy Plates"
+category    = "processed"
+icon        = "🛡️"
+color       = "#5a8aba"
+description = "Refined structural alloy used in hull and armour fabrication."
+base_value  = 8
+max_store   = 2000
+
+[[resources]]
+id          = "bio_polymer"
+name        = "Bio-Polymer"
+category    = "processed"
+icon        = "🧪"
+color       = "#5a9a5a"
+description = "Processed organic compounds used in armour lining and seals."
+base_value  = 6
+max_store   = 1500
+
+[[resources]]
+id          = "plasma_cell"
+name        = "Plasma Cell"
+category    = "processed"
+icon        = "🔋"
+color       = "#ba5ae8"
+description = "High-density power cells that fuel weapons and shields."
+base_value  = 10
+max_store   = 1500
+
+[[resources]]
+id          = "nano_weave"
+name        = "Nano-Weave"
+category    = "processed"
+icon        = "🕸️"
+color       = "#9a9aba"
+description = "Micro-engineered fabric used in light armour and suits."
+base_value  = 5
+max_store   = 1500
+
+# Advanced Materials
+[[resources]]
+id          = "void_crystal"
+name        = "Void Crystal"
+category    = "advanced"
+icon        = "💎"
+color       = "#8a5af0"
+description = "Rare crystalline structures found only in deep space ruins. Used in the most powerful weapons and technologies."
+base_value  = 50
+max_store   = 500
+
+[[resources]]
+id          = "neural_chip"
+name        = "Neural Chip"
+category    = "advanced"
+icon        = "🔬"
+color       = "#f0a050"
+description = "Advanced processing units recovered from alien technology."
+base_value  = 30
+max_store   = 500
+
+[[resources]]
+id          = "dark_matter"
+name        = "Dark Matter"
+category    = "advanced"
+icon        = "🌑"
+color       = "#2a1a4a"
+description = "Exotic matter with exotic properties. Extraordinarily rare."
+base_value  = 100
+max_store   = 200
+
+# Consumables / Food
+[[resources]]
+id          = "rations"
+name        = "Rations"
+category    = "food"
+icon        = "🍱"
+color       = "#8a6a3a"
+description = "Standard military ration packs. Required to sustain operatives."
+base_value  = 2
+max_store   = 3000
+
+[[resources]]
+id          = "concentrated_rations"
+name        = "Concentrated Rations"
+category    = "food"
+icon        = "💊"
+color       = "#ba8a5a"
+description = "High-calorie concentrated food blocks. More efficient than standard rations."
+base_value  = 5
+max_store   = 2000
+
+# Military / Logistics
+[[resources]]
+id          = "munitions"
+name        = "Munitions"
+category    = "military"
+icon        = "🔫"
+color       = "#ba4a3a"
+description = "Manufactured ammunition and ordnance for ground forces."
+base_value  = 8
+max_store   = 2000
+
+[[resources]]
+id          = "shield_module"
+name        = "Shield Module"
+category    = "military"
+icon        = "🛸"
+color       = "#3a8aba"
+description = "Portable energy shield generators for heavy infantry and vehicles."
+base_value  = 20
+max_store   = 500
+
+# ─── Buildings ────────────────────────────────────────────────────────────────
+
+[[buildings]]
+id          = "sensor_snare"
+name        = "Sensor Snare"
+category    = "extractor"
+description = "Automated sensor net that flags resource signatures in the surrounding void."
+max_count   = 10
+vision_bonus = 1
+[buildings.cost]
+ore = 10
+[buildings.worker_slot]
+operative_type = "drone_operator"
+[buildings.income_per_worker]
+ore = 0.5
+
+[[buildings]]
+id          = "hab_module"
+name        = "Hab Module"
+category    = "housing"
+description = "Pressurised living quarters that increase operative capacity."
+max_count   = 20
+population_bonus = 4
+[buildings.cost]
+ore = 15
+
+[[buildings]]
+id          = "officers_mess"
+name        = "Officers' Mess"
+category    = "command"
+description = "Centralised command hub. Increases coordination and resource efficiency."
+max_count   = 1
+[buildings.cost]
+ore = 200
+alloy_plates = 10
+bio_matter = 100
+
+[[buildings]]
+id          = "trade_nexus"
+name        = "Trade Nexus"
+category    = "commerce"
+description = "Deep-space trading hub. Opens resource exchange with other dominions."
+max_count   = 1
+[buildings.cost]
+ore = 400
+alloy_plates = 20
+bio_matter = 200
+
+[[buildings]]
+id          = "polymer_plant"
+name        = "Polymer Plant"
+category    = "industry"
+description = "Converts bio-matter into bio-polymer for armour production."
+max_count   = 3
+[buildings.cost]
+ore = 200
+alloy_plates = 5
+[buildings.worker_slot]
+operative_type = "polymer_tech"
+[buildings.income_per_worker]
+bio_polymer = 0.4
+
+[[buildings]]
+id          = "preservation_unit"
+name        = "Preservation Unit"
+category    = "food"
+description = "Processes raw rations into concentrated, long-lasting food packs."
+max_count   = 3
+[buildings.cost]
+ore = 100
+alloy_plates = 5
+[buildings.worker_slot]
+operative_type = "food_processor"
+[buildings.income_per_worker]
+concentrated_rations = 0.3
+
+[[buildings]]
+id          = "engineering_bay"
+name        = "Engineering Bay"
+category    = "industry"
+description = "General fabrication workshop for weapons and equipment."
+max_count   = 3
+[buildings.cost]
+ore = 300
+alloy_plates = 15
+[buildings.worker_slot]
+operative_type = "fabricator_tech"
+[buildings.income_per_worker]
+munitions = 0.3
+nano_weave = 0.2
+
+[[buildings]]
+id          = "smelting_forge"
+name        = "Smelting Forge"
+category    = "industry"
+description = "Processes raw ore and scrap into high-grade alloy plates."
+max_count   = 3
+[buildings.cost]
+ore = 400
+alloy_plates = 20
+[buildings.worker_slot]
+operative_type = "alloy_fabricator"
+[buildings.income_per_worker]
+alloy_plates = 0.35
+
+[[buildings]]
+id          = "plasma_lab"
+name        = "Plasma Lab"
+category    = "advanced_industry"
+description = "High-energy laboratory for producing plasma cells and advanced power systems."
+max_count   = 2
+[buildings.cost]
+ore = 600
+alloy_plates = 40
+void_crystal = 2
+[buildings.worker_slot]
+operative_type = "plasma_engineer"
+[buildings.income_per_worker]
+plasma_cell = 0.25
+
+[[buildings]]
+id          = "armour_works"
+name        = "Armour Works"
+category    = "military_industry"
+description = "Specialised facility for manufacturing shield modules and heavy armour."
+max_count   = 2
+[buildings.cost]
+ore = 500
+alloy_plates = 30
+bio_polymer = 20
+[buildings.worker_slot]
+operative_type = "armour_tech"
+[buildings.income_per_worker]
+shield_module = 0.1
+nano_weave = 0.3
+
+# ─── Operative Types (Workers) ────────────────────────────────────────────────
+
+[[operatives]]
+id          = "drone_operator"
+name        = "Drone Operator"
+description = "Manages mining and sensor drones in the surrounding void."
+produced_at = "officers_mess"
+[operatives.upkeep_per_tick]
+rations = 0.05
+
+[[operatives]]
+id          = "recon_trooper"
+name        = "Recon Trooper"
+description = "Lightly armed scout operative. Generates bio-matter and intel."
+produced_at = "officers_mess"
+[operatives.income_per_tick]
+bio_matter = 0.5
+scrap_alloy = 0.2
+[operatives.upkeep_per_tick]
+rations = 0.05
+
+[[operatives]]
+id          = "sensor_tech"
+name        = "Sensor Tech"
+description = "Deploys and maintains detection arrays. Improves resource yield."
+produced_at = "officers_mess"
+[operatives.upkeep_per_tick]
+rations = 0.05
+
+[[operatives]]
+id          = "polymer_tech"
+name        = "Polymer Tech"
+description = "Operates the polymer plant, converting bio-matter into usable compounds."
+produced_at = "polymer_plant"
+[operatives.upkeep_per_tick]
+rations = 0.05
+coolant = 0.02
+
+[[operatives]]
+id          = "food_processor"
+name        = "Food Processor"
+description = "Converts rations into concentrated, shelf-stable nutrition packs."
+produced_at = "preservation_unit"
+[operatives.upkeep_per_tick]
+rations = 0.03
+
+[[operatives]]
+id          = "ore_miner"
+name        = "Ore Miner"
+description = "Operates heavy extraction rigs on asteroid deposits."
+produced_at = "officers_mess"
+[operatives.income_per_tick]
+ore = 1.0
+[operatives.upkeep_per_tick]
+rations = 0.08
+concentrated_rations = 0.02
+
+[[operatives]]
+id          = "fuel_extractor"
+name        = "Fuel Extractor"
+description = "Harvests and refines propellant from nebula clouds."
+produced_at = "officers_mess"
+[operatives.income_per_tick]
+fuel = 0.8
+[operatives.upkeep_per_tick]
+rations = 0.06
+
+[[operatives]]
+id          = "scrap_salvager"
+name        = "Scrap Salvager"
+description = "Strips useful metal from derelict hulls and debris fields."
+produced_at = "officers_mess"
+[operatives.income_per_tick]
+scrap_alloy = 0.7
+[operatives.upkeep_per_tick]
+rations = 0.06
+
+[[operatives]]
+id          = "alloy_fabricator"
+name        = "Alloy Fabricator"
+description = "Operates the smelting forge to refine ore into alloy plates."
+produced_at = "smelting_forge"
+[operatives.upkeep_per_tick]
+rations = 0.05
+coolant = 0.03
+
+[[operatives]]
+id          = "armour_tech"
+name        = "Armour Technician"
+description = "Manufactures and maintains armour and shielding systems."
+produced_at = "armour_works"
+[operatives.upkeep_per_tick]
+rations = 0.05
+coolant = 0.02
+
+[[operatives]]
+id          = "fabricator_tech"
+name        = "Fabricator Tech"
+description = "Operates the engineering bay for weapons and equipment production."
+produced_at = "engineering_bay"
+[operatives.upkeep_per_tick]
+rations = 0.05
+
+[[operatives]]
+id          = "plasma_engineer"
+name        = "Plasma Engineer"
+description = "Highly trained specialist managing plasma containment and cell production."
+produced_at = "plasma_lab"
+[operatives.upkeep_per_tick]
+rations = 0.08
+coolant = 0.05
+
+# ─── Factions ─────────────────────────────────────────────────────────────────
+
+[[factions]]
+id          = "enforcers"
+name        = "Enforcers"
+description = "The iron fist of the GCPS. Disciplined shock troops and heavy armour."
+flavor      = "Order. Compliance. Enforcement."
+[factions.starting_bonus]
+munitions   = 50
+alloy_plates = 20
+[factions.stat_modifiers]
+industry_speed = 1.1
+
+[[factions]]
+id          = "plague"
+name        = "The Plague"
+description = "A viral biomechanical horror that consumes and corrupts. Bio-matter flows freely."
+flavor      = "Consume. Evolve. Spread."
+[factions.starting_bonus]
+bio_matter  = 100
+rations     = 30
+[factions.stat_modifiers]
+bio_production = 1.25
+
+[[factions]]
+id          = "forge_fathers"
+name        = "Forge Fathers"
+description = "Ancient and stubborn space dwarves. Unmatched in industry and endurance."
+flavor      = "Craft. Endure. Prevail."
+[factions.starting_bonus]
+ore         = 150
+alloy_plates = 30
+[factions.stat_modifiers]
+smelting_speed = 1.2
+
+[[factions]]
+id          = "asterians"
+name        = "Asterians"
+description = "Enigmatic ancient beings who fight through expendable robotic proxies."
+flavor      = "Observe. Calculate. Act."
+[factions.starting_bonus]
+neural_chip = 5
+plasma_cell = 20
+[factions.stat_modifiers]
+operative_efficiency = 1.15
+
+[[factions]]
+id          = "marauders"
+name        = "Marauders"
+description = "Savage and opportunistic raiders. Fast, brutal, and unpredictable."
+flavor      = "Raid. Plunder. Survive."
+[factions.starting_bonus]
+scrap_alloy = 80
+munitions   = 40
+[factions.stat_modifiers]
+movement_speed = 1.2
+
+[[factions]]
+id          = "veer_myn"
+name        = "Veer-myn"
+description = "Lurking beneath the infrastructure of civilisation, they breed in the dark."
+flavor      = "Breed. Scurry. Swarm."
+[factions.starting_bonus]
+rations     = 100
+bio_matter  = 50
+[factions.stat_modifiers]
+population_growth = 1.3
+
+# ─── Unit Categories (for Army Builder) ───────────────────────────────────────
+# Full unit stats are defined in epic-warpath-units.toml
+# These categories define legal force composition rules
+
+[[unit_categories]]
+id             = "command"
+name           = "Command"
+min_per_force  = 1
+max_per_force  = 3
+description    = "Commanders and leaders. At least one required per battlegroup."
+
+[[unit_categories]]
+id             = "infantry"
+name           = "Infantry"
+min_per_force  = 0
+max_per_force  = 99
+description    = "Core ground troops."
+
+[[unit_categories]]
+id             = "heavy_infantry"
+name           = "Heavy Infantry"
+min_per_force  = 0
+max_per_force  = 6
+description    = "Elite armoured infantry."
+
+[[unit_categories]]
+id             = "vehicle"
+name           = "Vehicle"
+min_per_force  = 0
+max_per_force  = 6
+description    = "Armoured vehicles and walkers."
+
+[[unit_categories]]
+id             = "artillery"
+name           = "Artillery"
+min_per_force  = 0
+max_per_force  = 3
+description    = "Long-range fire support."
+
+[[unit_categories]]
+id             = "air"
+name           = "Air Support"
+min_per_force  = 0
+max_per_force  = 2
+description    = "Air and orbital strike assets."

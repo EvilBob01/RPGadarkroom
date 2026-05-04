@@ -1,0 +1,702 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Blood & Plunder — Age of Sail / Fantasy Theme Ruleset
+# Tabletop game: Blood & Plunder by Firelock Games
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[meta]
+id             = "blood-and-plunder"
+name           = "Blood & Plunder"
+theme          = "fantasy"
+tabletop_game  = "Blood & Plunder by Firelock Games"
+version        = "1.0"
+description    = "Build a colonial empire across treacherous seas. Fell timber, forge cannon, and send your warships to claim glory."
+
+# ─── UI Labels ────────────────────────────────────────────────────────────────
+[ui]
+empire_label          = "Colony"
+territory_label       = "Province"
+worker_label          = "Colonist"
+worker_label_plural   = "Colonists"
+building_label        = "Structure"
+building_label_plural = "Structures"
+army_label            = "Warband"
+army_label_plural     = "Warbands"
+scout_label           = "Scout"
+scout_label_plural    = "Scouts"
+currency_label        = "Pieces of Eight"
+
+# ─── Balance ──────────────────────────────────────────────────────────────────
+[balance]
+action_points_per_day     = 100
+ap_refresh_hour_utc       = 6
+max_session_minutes       = 120
+starting_resources        = { timber = 100, provisions = 50, trade_goods = 20 }
+starting_action_points    = 50
+
+# ─── Map ──────────────────────────────────────────────────────────────────────
+[map]
+chunk_size            = 16
+starting_chunk_radius = 2
+base_vision_range     = 3
+fog_decay_turns       = 0
+
+[[map.biomes]]
+id       = "open_sea"
+name     = "Open Sea"
+weight   = 40
+color    = "#1a3a6a"
+passable = true
+resource_bonus = {}
+
+[[map.biomes]]
+id       = "coastal_waters"
+name     = "Coastal Waters"
+weight   = 20
+color    = "#2a5a8a"
+passable = true
+resource_bonus = { fish = 1.5 }
+
+[[map.biomes]]
+id       = "jungle"
+name     = "Jungle"
+weight   = 15
+color    = "#1a4a1a"
+passable = true
+resource_bonus = { timber = 1.75, hides = 1.5 }
+
+[[map.biomes]]
+id       = "savanna"
+name     = "Savanna"
+weight   = 10
+color    = "#6a5a2a"
+passable = true
+resource_bonus = { hides = 1.25, provisions = 1.25 }
+
+[[map.biomes]]
+id       = "swamp"
+name     = "Swamp"
+weight   = 8
+color    = "#3a4a2a"
+passable = true
+resource_bonus = { timber = 1.25 }
+
+[[map.biomes]]
+id       = "island"
+name     = "Island"
+weight   = 7
+color    = "#6a7a4a"
+passable = true
+resource_bonus = { timber = 1.5, trade_goods = 1.5 }
+
+# ─── Landmarks ────────────────────────────────────────────────────────────────
+[[map.landmarks]]
+id         = "abandoned_settlement"
+name       = "Abandoned Settlement"
+min_radius = 5
+max_radius = 25
+rarity     = 0.04
+loot_table = "settlement"
+
+[[map.landmarks]]
+id         = "iron_vein"
+name       = "Iron Vein"
+min_radius = 3
+max_radius = 20
+rarity     = 0.06
+loot_table = "iron_vein"
+
+[[map.landmarks]]
+id         = "native_village"
+name       = "Native Village"
+min_radius = 5
+max_radius = 25
+rarity     = 0.05
+loot_table = "native_village"
+
+[[map.landmarks]]
+id         = "hidden_harbour"
+name       = "Hidden Harbour"
+min_radius = 4
+max_radius = 20
+rarity     = 0.04
+loot_table = "harbour"
+
+[[map.landmarks]]
+id         = "spanish_wreck"
+name       = "Spanish Wreck"
+min_radius = 8
+max_radius = 30
+rarity     = 0.02
+loot_table = "wreck"
+
+# ─── Resources ────────────────────────────────────────────────────────────────
+
+# Raw Materials
+[[resources]]
+id          = "timber"
+name        = "Timber"
+category    = "raw"
+icon        = "🪵"
+color       = "#8a5a2a"
+description = "Felled hardwood from the great forests. Essential for building and shipwrighting."
+base_value  = 1
+max_store   = 5000
+
+[[resources]]
+id          = "hides"
+name        = "Hides"
+category    = "raw"
+icon        = "🦌"
+color       = "#7a5a3a"
+description = "Raw animal hides trapped from the jungle and savanna."
+base_value  = 2
+max_store   = 3000
+
+[[resources]]
+id          = "provisions"
+name        = "Provisions"
+category    = "raw"
+icon        = "🍖"
+color       = "#9a6a3a"
+description = "Fresh meat and produce. Must be preserved before long voyages."
+base_value  = 2
+max_store   = 3000
+
+[[resources]]
+id          = "iron_ore"
+name        = "Iron Ore"
+category    = "raw"
+icon        = "⛏️"
+color       = "#6a6a7a"
+description = "Unrefined iron ore smelted into useful metal goods."
+base_value  = 2
+max_store   = 3000
+
+[[resources]]
+id          = "charcoal"
+name        = "Charcoal"
+category    = "raw"
+icon        = "🪨"
+color       = "#3a3a3a"
+description = "Charred wood fuel required by the forge and for gunpowder production."
+base_value  = 1
+max_store   = 2000
+
+[[resources]]
+id          = "sulphur"
+name        = "Sulphur"
+category    = "raw"
+icon        = "🌋"
+color       = "#c8a030"
+description = "Yellowish mineral essential for gunpowder manufacture."
+base_value  = 3
+max_store   = 2000
+
+[[resources]]
+id          = "hemp"
+name        = "Hemp"
+category    = "raw"
+icon        = "🌿"
+color       = "#6a8a4a"
+description = "Raw fibre used to produce rope and sailcloth."
+base_value  = 2
+max_store   = 2000
+
+[[resources]]
+id          = "fish"
+name        = "Fish"
+category    = "raw"
+icon        = "🐟"
+color       = "#4a6a8a"
+description = "Caught from coastal waters. Preserved into salt fish for long voyages."
+base_value  = 1
+max_store   = 2000
+
+# Processed Materials
+[[resources]]
+id          = "planks"
+name        = "Planks"
+category    = "processed"
+icon        = "🪚"
+color       = "#aa7a4a"
+description = "Milled timber planks used in construction and shipbuilding."
+base_value  = 4
+max_store   = 3000
+
+[[resources]]
+id          = "iron_goods"
+name        = "Iron Goods"
+category    = "processed"
+icon        = "⚙️"
+color       = "#7a7a8a"
+description = "Smelted iron tools, fittings, and hardware."
+base_value  = 8
+max_store   = 2000
+
+[[resources]]
+id          = "rope"
+name        = "Rope"
+category    = "processed"
+icon        = "🪢"
+color       = "#8a7a5a"
+description = "Twisted hemp rope essential for rigging and tackle."
+base_value  = 4
+max_store   = 2000
+
+[[resources]]
+id          = "sailcloth"
+name        = "Sailcloth"
+category    = "processed"
+icon        = "⛵"
+color       = "#c8c8b8"
+description = "Heavy woven cloth cut to make sails."
+base_value  = 6
+max_store   = 1500
+
+[[resources]]
+id          = "leather"
+name        = "Leather"
+category    = "processed"
+icon        = "🥋"
+color       = "#7a4a2a"
+description = "Tanned animal hides for armour, bags, and equipment."
+base_value  = 5
+max_store   = 1500
+
+[[resources]]
+id          = "salted_provisions"
+name        = "Salted Provisions"
+category    = "processed"
+icon        = "🧂"
+color       = "#ba9a6a"
+description = "Preserved meat and salt fish. Standard rations for long campaigns."
+base_value  = 5
+max_store   = 2000
+
+# Advanced / Manufactured
+[[resources]]
+id          = "gunpowder"
+name        = "Gunpowder"
+category    = "advanced"
+icon        = "💥"
+color       = "#5a3a2a"
+description = "Mixed black powder. Required to fire all firearms and cannon."
+base_value  = 15
+max_store   = 1000
+
+[[resources]]
+id          = "cannon_shot"
+name        = "Cannon Shot"
+category    = "advanced"
+icon        = "🔵"
+color       = "#4a4a5a"
+description = "Cast iron balls for naval and fortress cannon."
+base_value  = 10
+max_store   = 1000
+
+[[resources]]
+id          = "pitch"
+name        = "Pitch"
+category    = "advanced"
+icon        = "🫙"
+color       = "#2a1a0a"
+description = "Waterproofing compound essential for ship maintenance."
+base_value  = 8
+max_store   = 1000
+
+# Commerce
+[[resources]]
+id          = "trade_goods"
+name        = "Trade Goods"
+category    = "commerce"
+icon        = "📦"
+color       = "#8a6a4a"
+description = "Rum, tobacco, sugar, and other colonial trade commodities."
+base_value  = 12
+max_store   = 2000
+
+[[resources]]
+id          = "gold"
+name        = "Gold"
+category    = "commerce"
+icon        = "🥇"
+color       = "#e8b820"
+description = "Plundered treasure and traded coin. The measure of all wealth."
+base_value  = 50
+max_store   = 500
+
+# ─── Buildings ────────────────────────────────────────────────────────────────
+
+[[buildings]]
+id          = "hunting_snare"
+name        = "Hunting Snare"
+category    = "extractor"
+description = "Simple traps set in the jungle to catch animals for hides and provisions."
+max_count   = 10
+vision_bonus = 1
+[buildings.cost]
+timber = 10
+[buildings.worker_slot]
+operative_type = "trapper"
+[buildings.income_per_worker]
+hides = 0.4
+provisions = 0.3
+
+[[buildings]]
+id          = "dwelling"
+name        = "Dwelling"
+category    = "housing"
+description = "Basic settler housing that increases your colony's population capacity."
+max_count   = 20
+population_bonus = 4
+[buildings.cost]
+timber = 15
+
+[[buildings]]
+id          = "great_hall"
+name        = "Great Hall"
+category    = "command"
+description = "The heart of your colony. Recruits colonists and improves overall coordination."
+max_count   = 1
+[buildings.cost]
+timber = 200
+planks = 10
+provisions = 100
+
+[[buildings]]
+id          = "trading_post"
+name        = "Trading Post"
+category    = "commerce"
+description = "Enables trade and exchange of goods with other colonies and merchant vessels."
+max_count   = 1
+[buildings.cost]
+timber = 400
+planks = 20
+provisions = 200
+
+[[buildings]]
+id          = "tannery"
+name        = "Tannery"
+category    = "industry"
+description = "Converts raw hides into usable leather for armour and equipment."
+max_count   = 3
+[buildings.cost]
+timber = 200
+planks = 5
+[buildings.worker_slot]
+operative_type = "tanner"
+[buildings.income_per_worker]
+leather = 0.4
+
+[[buildings]]
+id          = "smokehouse"
+name        = "Smokehouse"
+category    = "food"
+description = "Smokes and salts fresh provisions for long-lasting rations."
+max_count   = 3
+[buildings.cost]
+timber = 100
+planks = 5
+[buildings.worker_slot]
+operative_type = "salter"
+[buildings.income_per_worker]
+salted_provisions = 0.35
+
+[[buildings]]
+id          = "workshop"
+name        = "Workshop"
+category    = "industry"
+description = "General crafting workshop producing tools, rope, sailcloth and equipment."
+max_count   = 3
+[buildings.cost]
+timber = 300
+planks = 15
+[buildings.worker_slot]
+operative_type = "craftsman"
+[buildings.income_per_worker]
+rope = 0.3
+sailcloth = 0.2
+iron_goods = 0.15
+
+[[buildings]]
+id          = "forge"
+name        = "Forge"
+category    = "industry"
+description = "Smelts iron ore into iron goods, cannon shot, and weapon components."
+max_count   = 3
+[buildings.cost]
+timber = 400
+planks = 20
+[buildings.worker_slot]
+operative_type = "smith"
+[buildings.income_per_worker]
+iron_goods = 0.4
+cannon_shot = 0.15
+
+[[buildings]]
+id          = "powder_mill"
+name        = "Powder Mill"
+category    = "military_industry"
+description = "Carefully mixes sulphur, charcoal, and saltpeter into black powder."
+max_count   = 2
+[buildings.cost]
+timber = 500
+planks = 30
+iron_goods = 10
+[buildings.worker_slot]
+operative_type = "powder_maker"
+[buildings.income_per_worker]
+gunpowder = 0.3
+
+[[buildings]]
+id          = "shipyard"
+name        = "Shipyard"
+category    = "military_industry"
+description = "Constructs and repairs naval vessels. Required for naval warbands."
+max_count   = 1
+[buildings.cost]
+timber = 600
+planks = 50
+iron_goods = 20
+rope = 30
+[buildings.worker_slot]
+operative_type = "shipwright"
+[buildings.income_per_worker]
+pitch = 0.2
+
+# ─── Colonist Types (Workers) ─────────────────────────────────────────────────
+
+[[operatives]]
+id          = "laborer"
+name        = "Labourer"
+description = "General colonist who gathers timber and raw materials."
+produced_at = "great_hall"
+[operatives.income_per_tick]
+timber = 0.5
+charcoal = 0.2
+[operatives.upkeep_per_tick]
+provisions = 0.05
+
+[[operatives]]
+id          = "hunter"
+name        = "Hunter"
+description = "Ranges the jungle for game, bringing back hides and provisions."
+produced_at = "great_hall"
+[operatives.income_per_tick]
+hides = 0.5
+provisions = 0.5
+[operatives.upkeep_per_tick]
+provisions = 0.04
+
+[[operatives]]
+id          = "trapper"
+name        = "Trapper"
+description = "Sets and maintains snares across the wilderness."
+produced_at = "hunting_snare"
+[operatives.upkeep_per_tick]
+provisions = 0.04
+
+[[operatives]]
+id          = "tanner"
+name        = "Tanner"
+description = "Treats and processes raw hides into finished leather."
+produced_at = "tannery"
+[operatives.upkeep_per_tick]
+provisions = 0.05
+
+[[operatives]]
+id          = "salter"
+name        = "Salter"
+description = "Preserves fresh meat and fish into long-lasting rations."
+produced_at = "smokehouse"
+[operatives.upkeep_per_tick]
+provisions = 0.03
+
+[[operatives]]
+id          = "iron_miner"
+name        = "Iron Miner"
+description = "Digs iron ore from veins and outcrops."
+produced_at = "great_hall"
+[operatives.income_per_tick]
+iron_ore = 1.0
+[operatives.upkeep_per_tick]
+provisions = 0.08
+salted_provisions = 0.02
+
+[[operatives]]
+id          = "charcoal_burner"
+name        = "Charcoal Burner"
+description = "Burns slow kilns of hardwood to produce charcoal fuel."
+produced_at = "great_hall"
+[operatives.income_per_tick]
+charcoal = 0.8
+[operatives.upkeep_per_tick]
+provisions = 0.05
+
+[[operatives]]
+id          = "sulphur_miner"
+name        = "Sulphur Miner"
+description = "Extracts raw sulphur from volcanic vents and deposits."
+produced_at = "great_hall"
+[operatives.income_per_tick]
+sulphur = 0.7
+[operatives.upkeep_per_tick]
+provisions = 0.07
+
+[[operatives]]
+id          = "smith"
+name        = "Smith"
+description = "Tends the forge, producing iron goods, fittings, and ordnance."
+produced_at = "forge"
+[operatives.upkeep_per_tick]
+provisions = 0.06
+charcoal = 0.04
+
+[[operatives]]
+id          = "craftsman"
+name        = "Craftsman"
+description = "Skilled artisan producing rope, sailcloth, and general goods."
+produced_at = "workshop"
+[operatives.upkeep_per_tick]
+provisions = 0.05
+
+[[operatives]]
+id          = "powder_maker"
+name        = "Powder Maker"
+description = "Carefully measures and mixes the ingredients for black powder."
+produced_at = "powder_mill"
+[operatives.upkeep_per_tick]
+provisions = 0.06
+
+[[operatives]]
+id          = "shipwright"
+name        = "Shipwright"
+description = "Master builder who constructs and maintains the colony's vessels."
+produced_at = "shipyard"
+[operatives.upkeep_per_tick]
+provisions = 0.08
+salted_provisions = 0.02
+
+[[operatives]]
+id          = "fisherman"
+name        = "Fisherman"
+description = "Takes small boats out to the coastal waters in search of fish."
+produced_at = "great_hall"
+[operatives.income_per_tick]
+fish = 0.8
+[operatives.upkeep_per_tick]
+provisions = 0.04
+
+# ─── Factions ─────────────────────────────────────────────────────────────────
+
+[[factions]]
+id          = "pirates"
+name        = "Pirates"
+description = "Lawless buccaneers who answer to no flag. Masters of the ambush and the quick raid."
+flavor      = "Take what you can. Give nothing back."
+[factions.starting_bonus]
+trade_goods = 50
+gunpowder   = 20
+[factions.stat_modifiers]
+movement_speed = 1.2
+
+[[factions]]
+id          = "spanish"
+name        = "Spanish Crown"
+description = "The largest empire in the New World, vast in wealth but slow to react."
+flavor      = "In the name of God and King."
+[factions.starting_bonus]
+gold        = 30
+iron_goods  = 30
+cannon_shot = 20
+[factions.stat_modifiers]
+industry_speed = 1.1
+
+[[factions]]
+id          = "french"
+name        = "French Boucaniers"
+description = "Hardy hunters and woodsmen who have made the Caribbean their own."
+flavor      = "Liberté dans les bois."
+[factions.starting_bonus]
+hides       = 80
+provisions  = 60
+[factions.stat_modifiers]
+hunting_yield = 1.3
+
+[[factions]]
+id          = "english"
+name        = "English Sea Dogs"
+description = "Privateer captains sailing under letters of marque from the Crown."
+flavor      = "For Queen and Country."
+[factions.starting_bonus]
+timber      = 100
+rope        = 30
+[factions.stat_modifiers]
+naval_strength = 1.15
+
+[[factions]]
+id          = "dutch"
+name        = "Dutch Merchant Company"
+description = "Commercial traders who arm their merchant fleets and fight for profit."
+flavor      = "Commerce is war by other means."
+[factions.starting_bonus]
+trade_goods = 80
+gold        = 20
+[factions.stat_modifiers]
+trade_value = 1.2
+
+[[factions]]
+id          = "native"
+name        = "Native Nations"
+description = "First peoples of the islands and coasts, defending their ancestral lands."
+flavor      = "These are our shores."
+[factions.starting_bonus]
+provisions  = 100
+hides       = 60
+[factions.stat_modifiers]
+jungle_movement = 1.3
+population_growth = 1.2
+
+# ─── Unit Categories ──────────────────────────────────────────────────────────
+
+[[unit_categories]]
+id             = "command"
+name           = "Command"
+min_per_force  = 1
+max_per_force  = 3
+description    = "Captains, officers, and leaders. At least one required per warband."
+
+[[unit_categories]]
+id             = "militia"
+name           = "Militia"
+min_per_force  = 0
+max_per_force  = 99
+description    = "Common armed colonists and irregulars."
+
+[[unit_categories]]
+id             = "trained"
+name           = "Trained Infantry"
+min_per_force  = 0
+max_per_force  = 8
+description    = "Professional soldiers and elite fighters."
+
+[[unit_categories]]
+id             = "naval"
+name           = "Naval"
+min_per_force  = 0
+max_per_force  = 4
+description    = "Ships, longboats, and naval crew."
+
+[[unit_categories]]
+id             = "artillery"
+name           = "Artillery"
+min_per_force  = 0
+max_per_force  = 3
+description    = "Cannon, swivel guns, and heavy weapons."
+
+[[unit_categories]]
+id             = "allied"
+name           = "Allied Forces"
+min_per_force  = 0
+max_per_force  = 2
+description    = "Mercenaries, allied native warriors, or allied faction troops."

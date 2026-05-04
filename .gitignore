@@ -7,3 +7,19 @@ lang/.DS_Store
 .DS_Store
 node_modules
 img/Thumbs.db
+
+# Environment / secrets
+.env
+*.env.local
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+logs/
+*.log
+
+# OS
+Thumbs.db
