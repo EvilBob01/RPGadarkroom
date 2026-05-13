@@ -19,10 +19,14 @@ if (!IS_DEV && SESSION_SECRET === 'dev_secret_change_me') {
 }
 
 // ─── Database ─────────────────────────────────────────────────────────────────
-const DB_CLIENT = process.env.DB_CLIENT ?? 'sqlite3';
+// DB_CLIENT options: better-sqlite3 | mysql2 | pg
+const DB_CLIENT = process.env.DB_CLIENT ?? 'better-sqlite3';
+
+// Both SQLite drivers use a local file; all others use a TCP connection.
+const IS_SQLITE = DB_CLIENT === 'better-sqlite3' || DB_CLIENT === 'sqlite3';
 
 function buildDbConnection() {
-  if (DB_CLIENT === 'sqlite3') {
+  if (IS_SQLITE) {
     const filename = process.env.DB_FILENAME ?? path.join(ROOT, 'data', 'campaign.sqlite');
     return { filename };
   }
@@ -39,9 +43,9 @@ function buildDbConnection() {
 export const DB_CONFIG = {
   client:     DB_CLIENT,
   connection: buildDbConnection(),
-  useNullAsDefault: DB_CLIENT === 'sqlite3',   // required for SQLite
-  pool: DB_CLIENT === 'sqlite3'
-    ? { min: 1, max: 1 }                       // SQLite is single-connection
+  useNullAsDefault: IS_SQLITE,   // required for SQLite (both drivers)
+  pool: IS_SQLITE
+    ? { min: 1, max: 1 }         // SQLite is single-connection
     : { min: 2, max: 20 },
   migrations: {
     directory: path.join(ROOT, 'server', 'db', 'migrations'),

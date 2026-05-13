@@ -87,7 +87,7 @@ app.use((err, req, res, _next) => {
 // ─── Startup ──────────────────────────────────────────────────────────────────
 async function start() {
   // Ensure data directory exists (for SQLite)
-  if (DB_CONFIG.client === 'sqlite3') {
+  if (DB_CONFIG.client === 'better-sqlite3' || DB_CONFIG.client === 'sqlite3') {
     const dbPath = DB_CONFIG.connection.filename;
     const dbDir  = path.dirname(dbPath);
     if (!fs.existsSync(dbDir)) {
