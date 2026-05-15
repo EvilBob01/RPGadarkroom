@@ -147,15 +147,29 @@ router.get('/', requireAuth, async (req, res) => {
       .where({ gm_user_id: req.user.id })
       .select('*');
 
+    // Use a Set of GM campaign IDs for reliable is_gm detection (avoids
+    // integer vs string type mismatch from session vs DB comparisons).
+    const gmCampaignIds = new Set(asGM.map((c) => c.id));
+
     // Build map from player entries first (they have empire_name)
     const map = new Map();
     for (const c of asPlayer) {
-      map.set(c.id, { ...c, is_gm: c.gm_user_id === req.user.id, config: JSON.parse(c.config ?? '{}') });
+      map.set(c.id, {
+        ...c,
+        is_gm:  gmCampaignIds.has(c.id),
+        config: JSON.parse(c.config ?? '{}'),
+      });
     }
     // Add GM-only campaigns the user hasn't joined as a player yet
     for (const c of asGM) {
       if (!map.has(c.id)) {
-        map.set(c.id, { ...c, is_gm: true, empire_name: null, faction: null, config: JSON.parse(c.config ?? '{}') });
+        map.set(c.id, {
+          ...c,
+          is_gm:       true,
+          empire_name: null,
+          faction:     null,
+          config:      JSON.parse(c.config ?? '{}'),
+        });
       }
     }
 
