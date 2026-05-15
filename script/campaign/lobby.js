@@ -84,22 +84,41 @@ export function initLobby(user, onEnterCampaign, onLogout) {
         return;
       }
 
-      list.innerHTML = campaigns.map((c) => `
-        <div class="campaign-card" data-id="${c.id}">
+      list.innerHTML = campaigns.map((c) => {
+        // GM who hasn't joined as a player yet
+        const gmOnly = !c.empire_name;
+        return `
+        <div class="campaign-card ${gmOnly ? 'gm-only' : ''}" data-id="${c.id}"
+             data-gm-only="${gmOnly}" data-code="${escHtml(c.invite_code ?? '')}">
           <div class="bld-top">
             <div class="cc-name">${escHtml(c.name)}</div>
             <span class="cc-status ${c.status}">${c.status}</span>
           </div>
-          ${c.empire_name ? `<div class="cc-empire">${escHtml(c.empire_name)}${c.faction ? ` · ${escHtml(c.faction)}` : ''}</div>` : '<div class="cc-empire" style="color:var(--text-dim)">GM</div>'}
+          ${c.empire_name
+            ? `<div class="cc-empire">${escHtml(c.empire_name)}${c.faction ? ` · ${escHtml(c.faction)}` : ''}</div>`
+            : `<div class="cc-empire" style="color:var(--text-dim)">GM — <span style="color:var(--accent)">join to set up your empire ↓</span></div>`}
           <div class="cc-meta">
             <span>${escHtml(c.ruleset_id)}</span>
             ${c.invite_code ? `<span>Code: <b style="color:var(--accent);letter-spacing:1px">${c.invite_code}</b></span>` : ''}
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
 
       list.querySelectorAll('.campaign-card').forEach((card) => {
-        card.addEventListener('click', () => onEnterCampaign(Number(card.dataset.id)));
+        card.addEventListener('click', () => {
+          if (card.dataset.gmOnly === 'true') {
+            // Pre-fill the join form with this campaign's code and scroll to it
+            const codeEl = document.getElementById('join-code');
+            if (codeEl) {
+              codeEl.value = card.dataset.code;
+              codeEl.dispatchEvent(new Event('input'));
+              document.getElementById('join-empire')?.focus();
+              card.scrollIntoView({ behavior: 'smooth' });
+            }
+            return;
+          }
+          onEnterCampaign(Number(card.dataset.id));
+        });
       });
     } catch (err) {
       document.getElementById('campaigns-list').innerHTML =

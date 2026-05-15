@@ -249,6 +249,7 @@ body {
 .cc-status.ended   { color: var(--red-hi);   border: 1px solid var(--red); }
 
 .cc-empire { color: var(--accent); font-size: 12px; margin-top: 2px; }
+.campaign-card.gm-only { border-style: dashed; }
 
 .c-form-group { margin-bottom: 10px; }
 .c-form-group label {
