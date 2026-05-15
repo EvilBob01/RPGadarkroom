@@ -277,6 +277,19 @@ body {
 .c-form-group input:focus,
 .c-form-group select:focus { border-color: var(--border-hi); }
 
+.dice-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 2px;
+  margin-left: 4px;
+  opacity: 0.6;
+  vertical-align: middle;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.dice-btn:hover { opacity: 1; transform: rotate(20deg); }
+
 /* ── Empire Screen ──────────────────────────────────────────────────────── */
 #empire-screen { background: var(--bg); }
 

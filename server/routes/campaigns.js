@@ -131,28 +131,35 @@ router.post('/', requireAuth, requireRole('gm', 'admin'), async (req, res) => {
 // ─── GET /api/campaigns ───────────────────────────────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
   try {
-    // Return campaigns where the user is either the GM or a player
+    // Player entries take priority — they carry empire_name + faction.
+    // GM-only entries (no player row yet) are added after.
+    const asPlayer = await knex('campaigns')
+      .join('campaign_players', 'campaigns.id', 'campaign_players.campaign_id')
+      .where('campaign_players.user_id', req.user.id)
+      .select(
+        'campaigns.*',
+        'campaign_players.empire_name',
+        'campaign_players.faction',
+        'campaign_players.id as cp_id',
+      );
+
     const asGM = await knex('campaigns')
       .where({ gm_user_id: req.user.id })
       .select('*');
 
-    const asPlayer = await knex('campaigns')
-      .join('campaign_players', 'campaigns.id', 'campaign_players.campaign_id')
-      .where('campaign_players.user_id', req.user.id)
-      .select('campaigns.*', 'campaign_players.empire_name', 'campaign_players.faction');
-
-    // Merge and de-duplicate
-    const seen = new Set();
-    const all  = [];
-
-    for (const c of [...asGM, ...asPlayer]) {
-      if (!seen.has(c.id)) {
-        seen.add(c.id);
-        all.push({ ...c, config: JSON.parse(c.config ?? '{}') });
+    // Build map from player entries first (they have empire_name)
+    const map = new Map();
+    for (const c of asPlayer) {
+      map.set(c.id, { ...c, is_gm: c.gm_user_id === req.user.id, config: JSON.parse(c.config ?? '{}') });
+    }
+    // Add GM-only campaigns the user hasn't joined as a player yet
+    for (const c of asGM) {
+      if (!map.has(c.id)) {
+        map.set(c.id, { ...c, is_gm: true, empire_name: null, faction: null, config: JSON.parse(c.config ?? '{}') });
       }
     }
 
-    return res.json({ campaigns: all });
+    return res.json({ campaigns: [...map.values()] });
   } catch (err) {
     console.error('[campaigns/list]', err);
     return res.status(500).json({ error: 'Failed to list campaigns.' });

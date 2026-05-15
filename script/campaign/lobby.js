@@ -3,6 +3,7 @@
  * Shows the player's campaigns and lets them join or create one.
  */
 import { api } from './api.js';
+import { generateCampaignName, generateEmpireName } from './namegen.js';
 
 export function initLobby(user, onEnterCampaign, onLogout) {
   const screen = document.getElementById('lobby-screen');
@@ -32,7 +33,7 @@ export function initLobby(user, onEnterCampaign, onLogout) {
                  style="text-transform:uppercase;letter-spacing:2px" maxlength="14"/>
         </div>
         <div class="c-form-group">
-          <label>Empire Name</label>
+          <label>Empire Name <button type="button" class="dice-btn" id="dice-empire" title="Random name">🎲</button></label>
           <input type="text" id="join-empire" placeholder="Iron Dominion" maxlength="80"/>
         </div>
         <div class="c-form-group" id="join-faction-wrap" style="display:none">
@@ -48,7 +49,7 @@ export function initLobby(user, onEnterCampaign, onLogout) {
       <div class="lobby-col" id="create-col" style="display:none">
         <h2>Create Campaign</h2>
         <div class="c-form-group">
-          <label>Campaign Name</label>
+          <label>Campaign Name <button type="button" class="dice-btn" id="dice-campaign" title="Random name">🎲</button></label>
           <input type="text" id="create-name" placeholder="First Contact" maxlength="100"/>
         </div>
         <div class="c-form-group">
@@ -107,16 +108,16 @@ export function initLobby(user, onEnterCampaign, onLogout) {
       list.querySelectorAll('.campaign-card').forEach((card) => {
         card.addEventListener('click', () => {
           if (card.dataset.gmOnly === 'true') {
-            // Pre-fill the join form with this campaign's code and scroll to it
+            // Haven't joined as a player yet — pre-fill join form
             const codeEl = document.getElementById('join-code');
             if (codeEl) {
               codeEl.value = card.dataset.code;
               codeEl.dispatchEvent(new Event('input'));
               document.getElementById('join-empire')?.focus();
-              card.scrollIntoView({ behavior: 'smooth' });
             }
             return;
           }
+          // Has an empire — go straight to the dashboard
           onEnterCampaign(Number(card.dataset.id));
         });
       });
@@ -127,6 +128,12 @@ export function initLobby(user, onEnterCampaign, onLogout) {
   }
 
   loadCampaigns();
+
+  // ── Name generators ─────────────────────────────────────────────────────
+  // Empire name dice (theme unknown at join time, use neutral list)
+  document.getElementById('dice-empire').addEventListener('click', () => {
+    document.getElementById('join-empire').value = generateEmpireName();
+  });
 
   // ── Join ────────────────────────────────────────────────────────────────
   const joinCodeEl    = document.getElementById('join-code');
@@ -187,6 +194,11 @@ export function initLobby(user, onEnterCampaign, onLogout) {
   // ── Create (GM / admin) ──────────────────────────────────────────────────
   if (user.role === 'gm' || user.role === 'admin') {
     document.getElementById('create-col').style.display = 'block';
+
+    // Campaign name dice
+    document.getElementById('dice-campaign').addEventListener('click', () => {
+      document.getElementById('create-name').value = generateCampaignName();
+    });
 
     // Load rulesets into dropdown
     api.listRulesets().then(({ rulesets }) => {
