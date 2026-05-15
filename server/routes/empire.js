@@ -186,21 +186,49 @@ router.post('/:campaignId/build', resolveCampaignPlayer, async (req, res) => {
       });
 
     } else {
-      // Demolish
+      // Demolish — refund 50% of build cost (floored)
       if (currentCount === 0) {
         return res.status(400).json({ error: `You have no ${building.name} to demolish.` });
       }
 
-      const newCount = String(currentCount - 1);
-      await knex('empire_state')
-        .insert({ campaign_player_id: cp.id, key: `buildings.${building_id}`, value: newCount, updated_at: new Date() })
-        .onConflict(['campaign_player_id', 'key'])
-        .merge({ value: newCount, updated_at: new Date() });
+      const cost = building.cost ?? {};
+      const refundOps = [];
+      const refundParts = [];
 
+      for (const [res, amount] of Object.entries(cost)) {
+        const refund  = Math.floor(amount * 0.5);
+        if (refund <= 0) continue;
+        const maxStore = (ruleset.resources ?? []).find((r) => r.id === res)?.max_store ?? Infinity;
+        const current  = state.stores[res] ?? 0;
+        const newVal   = String(Math.min(current + refund, maxStore));
+        refundOps.push(
+          knex('empire_state')
+            .insert({ campaign_player_id: cp.id, key: `stores.${res}`, value: newVal, updated_at: new Date() })
+            .onConflict(['campaign_player_id', 'key'])
+            .merge({ value: newVal, updated_at: new Date() })
+        );
+        const resName = (ruleset.resources ?? []).find((r) => r.id === res)?.name ?? res;
+        refundParts.push(`${refund} ${resName}`);
+      }
+
+      // Decrement building count
+      refundOps.push(
+        knex('empire_state')
+          .insert({ campaign_player_id: cp.id, key: `buildings.${building_id}`, value: String(currentCount - 1), updated_at: new Date() })
+          .onConflict(['campaign_player_id', 'key'])
+          .merge({ value: String(currentCount - 1), updated_at: new Date() })
+      );
+
+      await Promise.all(refundOps);
+
+      const refundMsg = refundParts.length ? ` Recovered: ${refundParts.join(', ')}.` : '';
       return res.json({
-        message:  `${building.name} demolished.`,
+        message:  `${building.name} demolished.${refundMsg}`,
         building: building_id,
         count:    currentCount - 1,
+        refund:   Object.fromEntries(
+          Object.entries(cost).map(([r, a]) => [r, Math.floor(a * 0.5)])
+        ),
       });
     }
   } catch (err) {

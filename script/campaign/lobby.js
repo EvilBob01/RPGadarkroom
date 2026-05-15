@@ -86,14 +86,17 @@ export function initLobby(user, onEnterCampaign, onLogout) {
       }
 
       list.innerHTML = campaigns.map((c) => {
-        // GM who hasn't joined as a player yet
         const gmOnly = !c.empire_name;
+        const isGM   = c.is_gm;
         return `
         <div class="campaign-card ${gmOnly ? 'gm-only' : ''}" data-id="${c.id}"
              data-gm-only="${gmOnly}" data-code="${escHtml(c.invite_code ?? '')}">
           <div class="bld-top">
             <div class="cc-name">${escHtml(c.name)}</div>
-            <span class="cc-status ${c.status}">${c.status}</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="cc-status ${c.status}">${c.status}</span>
+              ${isGM ? `<button class="dice-btn settings-btn" data-id="${c.id}" title="Campaign settings">⚙</button>` : ''}
+            </div>
           </div>
           ${c.empire_name
             ? `<div class="cc-empire">${escHtml(c.empire_name)}${c.faction ? ` · ${escHtml(c.faction)}` : ''}</div>`
@@ -106,9 +109,13 @@ export function initLobby(user, onEnterCampaign, onLogout) {
       }).join('');
 
       list.querySelectorAll('.campaign-card').forEach((card) => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
+          // Settings gear — open settings, don't navigate
+          if (e.target.classList.contains('settings-btn')) {
+            openSettings(Number(e.target.dataset.id), campaigns);
+            return;
+          }
           if (card.dataset.gmOnly === 'true') {
-            // Haven't joined as a player yet — pre-fill join form
             const codeEl = document.getElementById('join-code');
             if (codeEl) {
               codeEl.value = card.dataset.code;
@@ -117,7 +124,6 @@ export function initLobby(user, onEnterCampaign, onLogout) {
             }
             return;
           }
-          // Has an empire — go straight to the dashboard
           onEnterCampaign(Number(card.dataset.id));
         });
       });
@@ -237,6 +243,138 @@ export function initLobby(user, onEnterCampaign, onLogout) {
       } finally {
         btn.disabled = false;
         btn.textContent = 'create campaign';
+      }
+    });
+  // ── Campaign settings modal ─────────────────────────────────────────────
+  function openSettings(campaignId, campaigns) {
+    const c      = campaigns.find((x) => x.id === campaignId);
+    if (!c) return;
+    const cfg    = c.config ?? {};
+
+    // Remove any existing modal
+    document.getElementById('settings-modal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id    = 'settings-modal';
+    modal.innerHTML = `
+      <div class="modal-backdrop"></div>
+      <div class="modal-box">
+        <div class="modal-header">
+          <span>Campaign Settings — ${escHtml(c.name)}</span>
+          <button class="dice-btn" id="modal-close" title="Close">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="c-form-group">
+            <label>Campaign Name</label>
+            <input type="text" id="set-name" value="${escHtml(c.name)}" maxlength="100"/>
+          </div>
+          <div class="modal-row">
+            <div class="c-form-group">
+              <label>Action Points / Day</label>
+              <input type="number" id="set-ap" value="${cfg.action_points_per_day ?? 100}" min="10" max="1000"/>
+            </div>
+            <div class="c-form-group">
+              <label>AP Refresh Hour (UTC)</label>
+              <input type="number" id="set-ap-hour" value="${cfg.ap_refresh_hour_utc ?? 6}" min="0" max="23"/>
+            </div>
+          </div>
+          <div class="modal-row">
+            <div class="c-form-group">
+              <label>Max Session (minutes/day)</label>
+              <input type="number" id="set-session" value="${cfg.max_session_minutes ?? 120}" min="15" max="1440"/>
+            </div>
+            <div class="c-form-group">
+              <label>Max Players</label>
+              <input type="number" id="set-maxplayers" value="${cfg.max_players ?? 20}" min="2" max="100"/>
+            </div>
+          </div>
+
+          <div class="modal-section-label">Invite Code</div>
+          <div style="font-family:var(--font-mono);font-size:18px;letter-spacing:3px;color:var(--accent-hi);margin-bottom:14px">
+            ${escHtml(c.invite_code ?? '—')}
+          </div>
+
+          <div class="modal-section-label">Campaign Status</div>
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            ${c.status === 'setup'
+              ? `<button class="c-btn primary" id="set-start">Start Campaign</button>`
+              : c.status === 'active'
+              ? `<button class="c-btn" id="set-pause">Pause Campaign</button>`
+              : c.status === 'paused'
+              ? `<button class="c-btn primary" id="set-resume">Resume Campaign</button>`
+              : `<span style="color:var(--text-dim);font-size:12px">Campaign has ended.</span>`
+            }
+          </div>
+
+          <div class="c-error"  id="set-error"></div>
+          <div class="c-notice" id="set-notice"></div>
+
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="c-btn primary" id="set-save">Save Changes</button>
+            <button class="c-btn"         id="set-cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const close = () => { modal.remove(); loadCampaigns(); };
+    document.getElementById('modal-close').addEventListener('click', close);
+    document.getElementById('set-cancel').addEventListener('click', close);
+    modal.querySelector('.modal-backdrop').addEventListener('click', close);
+
+    // Save
+    document.getElementById('set-save').addEventListener('click', async () => {
+      const errEl    = document.getElementById('set-error');
+      const noticeEl = document.getElementById('set-notice');
+      errEl.textContent = ''; noticeEl.textContent = '';
+
+      const newName = document.getElementById('set-name').value.trim();
+      if (!newName) { errEl.textContent = 'Name cannot be empty.'; return; }
+
+      const newConfig = {
+        action_points_per_day: parseInt(document.getElementById('set-ap').value) || 100,
+        ap_refresh_hour_utc:   parseInt(document.getElementById('set-ap-hour').value) || 6,
+        max_session_minutes:   parseInt(document.getElementById('set-session').value) || 120,
+        max_players:           parseInt(document.getElementById('set-maxplayers').value) || 20,
+      };
+
+      try {
+        await api.updateCampaign(campaignId, { name: newName, config: newConfig });
+        noticeEl.textContent = 'Saved.';
+        setTimeout(close, 800);
+      } catch (err) {
+        errEl.textContent = err.message;
+      }
+    });
+
+    // Start / pause / resume
+    document.getElementById('set-start')?.addEventListener('click', async () => {
+      try {
+        await api.startCampaign(campaignId);
+        close();
+      } catch (err) {
+        document.getElementById('set-error').textContent = err.message;
+      }
+    });
+
+    document.getElementById('set-pause')?.addEventListener('click', async () => {
+      try {
+        await api.pauseCampaign(campaignId);
+        close();
+      } catch (err) {
+        document.getElementById('set-error').textContent = err.message;
+      }
+    });
+
+    document.getElementById('set-resume')?.addEventListener('click', async () => {
+      try {
+        await api.pauseCampaign(campaignId); // toggle
+        close();
+      } catch (err) {
+        document.getElementById('set-error').textContent = err.message;
       }
     });
   }

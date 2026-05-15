@@ -35,10 +35,11 @@ export const api = {
   listCampaigns:   ()          => req('GET',  '/campaigns'),
   getCampaign:     (id)        => req('GET',  `/campaigns/${id}`),
   createCampaign:  (b)         => req('POST', '/campaigns', b),
-  joinCampaign:    (b)         => req('POST', '/campaigns/join', b),
-  getPlayers:      (id)        => req('GET',  `/campaigns/${id}/players`),
-  startCampaign:   (id)        => req('POST', `/campaigns/${id}/start`),
-  pauseCampaign:   (id)        => req('POST', `/campaigns/${id}/pause`),
+  joinCampaign:    (b)         => req('POST',  '/campaigns/join', b),
+  getPlayers:      (id)        => req('GET',   `/campaigns/${id}/players`),
+  updateCampaign:  (id, b)     => req('PATCH', `/campaigns/${id}`, b),
+  startCampaign:   (id)        => req('POST',  `/campaigns/${id}/start`),
+  pauseCampaign:   (id)        => req('POST',  `/campaigns/${id}/pause`),
 
   // ── Rulesets ────────────────────────────────────────────────────────────
   listRulesets:    ()          => req('GET',  '/rulesets'),
