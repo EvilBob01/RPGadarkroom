@@ -342,8 +342,10 @@ export async function initEmpire(campaignId, onBack) {
       <div class="emp-panel" id="workers-panel"><h3>Operatives</h3></div>
     </div>
     <div id="empire-notifications"></div>
+    <div id="empire-load-error" style="display:none;padding:20px;color:var(--red-hi);font-size:13px"></div>
   `;
 
+  // Wire back button BEFORE any async work so it always functions
   document.getElementById('emp-back').addEventListener('click', () => {
     clearInterval(_pollTimer);
     onBack();
@@ -362,7 +364,11 @@ export async function initEmpire(campaignId, onBack) {
 
     render(data);
   } catch (err) {
-    screen.innerHTML += `<p style="color:var(--red-hi);padding:20px">${esc(err.message)}</p>`;
+    // Show error in a dedicated element — never use innerHTML+= as it destroys event listeners
+    const errEl = document.getElementById('empire-load-error');
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+    document.getElementById('emp-name').textContent = 'Error';
     return;
   }
 
