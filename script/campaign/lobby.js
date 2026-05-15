@@ -245,7 +245,9 @@ export function initLobby(user, onEnterCampaign, onLogout) {
         btn.textContent = 'create campaign';
       }
     });
-  // ── Campaign settings modal ─────────────────────────────────────────────
+  } // end GM/admin block
+
+  // ── Campaign settings modal (available to all GMs via the ⚙ button) ────
   function openSettings(campaignId, campaigns) {
     const c      = campaigns.find((x) => x.id === campaignId);
     if (!c) return;
