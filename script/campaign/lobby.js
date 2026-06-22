@@ -108,13 +108,16 @@ export function initLobby(user, onEnterCampaign, onLogout) {
         </div>`;
       }).join('');
 
+      // Wire settings gear buttons directly (avoids e.target delegation issues)
+      list.querySelectorAll('.settings-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openSettings(Number(btn.dataset.id), campaigns);
+        });
+      });
+
       list.querySelectorAll('.campaign-card').forEach((card) => {
-        card.addEventListener('click', (e) => {
-          // Settings gear — open settings, don't navigate
-          if (e.target.classList.contains('settings-btn')) {
-            openSettings(Number(e.target.dataset.id), campaigns);
-            return;
-          }
+        card.addEventListener('click', () => {
           if (card.dataset.gmOnly === 'true') {
             const codeEl = document.getElementById('join-code');
             if (codeEl) {
