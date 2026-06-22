@@ -326,7 +326,7 @@ export function initLobby(user, onEnterCampaign, onLogout) {
       </div>
     `;
 
-    document.body.appendChild(modal);
+    document.getElementById('campaign-app').appendChild(modal);
 
     const close = () => { modal.remove(); loadCampaigns(); };
     document.getElementById('modal-close').addEventListener('click', close);
