@@ -316,6 +316,9 @@ export function initLobby(user, onEnterCampaign, onLogout) {
             <button class="c-btn primary" id="set-save">Save Changes</button>
             <button class="c-btn"         id="set-cancel">Cancel</button>
           </div>
+
+          <div class="modal-section-label" style="margin-top:16px">Danger Zone</div>
+          <button class="c-btn danger" id="set-regen-map" style="margin-top:4px">Regenerate Map</button>
         </div>
       </div>
     `;
@@ -377,6 +380,28 @@ export function initLobby(user, onEnterCampaign, onLogout) {
         close();
       } catch (err) {
         document.getElementById('set-error').textContent = err.message;
+      }
+    });
+
+    // Regenerate map
+    document.getElementById('set-regen-map').addEventListener('click', async () => {
+      if (!confirm(
+        `Regenerate the map for "${c.name}"?\n\n` +
+        'This will wipe all current territory, fog of war, and starting positions ' +
+        'and create a brand-new map. This cannot be undone.'
+      )) return;
+
+      const btn = document.getElementById('set-regen-map');
+      btn.disabled = true;
+      btn.textContent = 'regenerating…';
+      try {
+        const { message } = await api.regenerateMap(campaignId);
+        document.getElementById('set-notice').textContent = message;
+        setTimeout(close, 1200);
+      } catch (err) {
+        document.getElementById('set-error').textContent = err.message;
+        btn.disabled = false;
+        btn.textContent = 'Regenerate Map';
       }
     });
   }

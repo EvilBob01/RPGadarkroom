@@ -1,7 +1,8 @@
 /**
  * Map routes — /api/map
  *
- * GET /api/map/:campaignId   Return chunk data for the campaign map.
+ * GET  /api/map/:campaignId            Return chunk data for the campaign map.
+ * POST /api/map/:campaignId/regenerate Wipe and regenerate the map (GM/admin only).
  *
  * Each chunk has a fog level:
  *   0 = never seen (black — no data returned)
@@ -13,7 +14,7 @@
 import { Router } from 'express';
 import knex from '../db/knex.js';
 import { requireAuth } from '../middleware/auth.js';
-import { updateVisibility } from '../services/mapgen.js';
+import { updateVisibility, generateMap } from '../services/mapgen.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -111,6 +112,38 @@ router.get('/:campaignId', async (req, res) => {
   } catch (err) {
     console.error('[map/get]', err);
     return res.status(500).json({ error: 'Failed to fetch map.' });
+  }
+});
+
+// ─── POST /api/map/:campaignId/regenerate ────────────────────────────────────
+router.post('/:campaignId/regenerate', async (req, res) => {
+  try {
+    const campaign = await knex('campaigns').where({ id: req.params.campaignId }).first();
+    if (!campaign) return res.status(404).json({ error: 'Campaign not found.' });
+
+    const isGM = campaign.gm_user_id === req.user.id || req.user.role === 'admin';
+    if (!isGM) {
+      return res.status(403).json({ error: 'Only the campaign GM or an admin can regenerate the map.' });
+    }
+
+    const campaignPlayers = await knex('campaign_players')
+      .where({ campaign_id: campaign.id })
+      .select('id', 'user_id');
+
+    // Wipe existing map data for this campaign
+    const cpIds = campaignPlayers.map((p) => p.id);
+    if (cpIds.length > 0) {
+      await knex('map_visibility').whereIn('campaign_player_id', cpIds).delete();
+    }
+    await knex('map_chunks').where({ campaign_id: campaign.id }).delete();
+
+    // Regenerate (generateMap is now safe to call since we cleared the table)
+    await generateMap(campaign, campaignPlayers);
+
+    return res.json({ message: 'Map regenerated successfully.' });
+  } catch (err) {
+    console.error('[map/regenerate]', err);
+    return res.status(500).json({ error: 'Failed to regenerate map.' });
   }
 });
 

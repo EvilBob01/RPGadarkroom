@@ -47,6 +47,7 @@ export const api = {
 
   // ── Map ─────────────────────────────────────────────────────────────────
   getMap:          (cid)       => req('GET',  `/map/${cid}`),
+  regenerateMap:   (cid)       => req('POST', `/map/${cid}/regenerate`),
 
   // ── Empire ──────────────────────────────────────────────────────────────
   getEmpire:       (cid)       => req('GET',  `/empire/${cid}`),
