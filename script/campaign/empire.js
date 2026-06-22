@@ -3,12 +3,15 @@
  * Renders resources, buildings, workers. Polls server every 15s for updates.
  */
 import { api } from './api.js';
+import { initMapView } from './map.js';
 
 const POLL_INTERVAL = 15000; // ms between state refreshes
 let _pollTimer = null;
 let _currentCampaignId = null;
 let _state = null;
 let _ruleset = null;
+let _mapRefresh = null;   // set after map tab is first loaded
+let _mapLoaded  = false;
 
 // ── Notification toasts ───────────────────────────────────────────────────────
 function notify(msg, type = '') {
@@ -317,6 +320,8 @@ async function refreshState() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 export async function initEmpire(campaignId, onBack) {
   _currentCampaignId = campaignId;
+  _mapLoaded  = false;
+  _mapRefresh = null;
   clearInterval(_pollTimer);
 
   const screen = document.getElementById('empire-screen');
@@ -334,12 +339,19 @@ export async function initEmpire(campaignId, onBack) {
         <span class="ap-count" id="ap-count"></span>
       </div>
       <span class="session-info" id="session-info"></span>
+      <div class="empire-tabs">
+        <button class="emp-tab active" data-tab="empire">Empire</button>
+        <button class="emp-tab" data-tab="map">Map</button>
+      </div>
       <button class="c-btn" id="emp-back">← campaigns</button>
     </div>
-    <div class="empire-content">
-      <div class="emp-panel" id="stores-panel"><h3>Resources</h3><p style="color:var(--text-dim);font-size:12px">loading…</p></div>
-      <div class="emp-panel" id="buildings-panel"><h3>Buildings</h3></div>
-      <div class="emp-panel" id="workers-panel"><h3>Operatives</h3></div>
+    <div class="empire-body">
+      <div class="empire-content" id="empire-content-panel">
+        <div class="emp-panel" id="stores-panel"><h3>Resources</h3><p style="color:var(--text-dim);font-size:12px">loading…</p></div>
+        <div class="emp-panel" id="buildings-panel"><h3>Buildings</h3></div>
+        <div class="emp-panel" id="workers-panel"><h3>Operatives</h3></div>
+      </div>
+      <div id="map-container" style="display:none;flex:1;overflow:hidden"></div>
     </div>
     <div id="empire-notifications"></div>
     <div id="empire-load-error" style="display:none;padding:20px;color:var(--red-hi);font-size:13px"></div>
@@ -349,6 +361,27 @@ export async function initEmpire(campaignId, onBack) {
   document.getElementById('emp-back').addEventListener('click', () => {
     clearInterval(_pollTimer);
     onBack();
+  });
+
+  // ── Tab switching ──────────────────────────────────────────────────────────
+  document.querySelectorAll('.emp-tab').forEach((tab) => {
+    tab.addEventListener('click', async () => {
+      document.querySelectorAll('.emp-tab').forEach((t) => t.classList.toggle('active', t === tab));
+      const which = tab.dataset.tab;
+      const empirePanel = document.getElementById('empire-content-panel');
+      const mapPanel    = document.getElementById('map-container');
+      if (which === 'empire') {
+        empirePanel.style.display = '';
+        mapPanel.style.display    = 'none';
+      } else {
+        empirePanel.style.display = 'none';
+        mapPanel.style.display    = 'flex';
+        if (!_mapLoaded && _ruleset) {
+          _mapLoaded  = true;
+          _mapRefresh = await initMapView(mapPanel, campaignId, _ruleset);
+        }
+      }
+    });
   });
 
   // Load ruleset + initial state together
@@ -372,6 +405,11 @@ export async function initEmpire(campaignId, onBack) {
     return;
   }
 
-  // Poll for updates
-  _pollTimer = setInterval(refreshState, POLL_INTERVAL);
+  // Poll for updates (empire state + map if map tab is open)
+  _pollTimer = setInterval(async () => {
+    await refreshState();
+    if (_mapRefresh && document.getElementById('map-container')?.style.display !== 'none') {
+      await _mapRefresh();
+    }
+  }, POLL_INTERVAL);
 }

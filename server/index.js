@@ -21,6 +21,7 @@ import authRoutes      from './routes/auth.js';
 import campaignRoutes  from './routes/campaigns.js';
 import rulesetRoutes   from './routes/rulesets.js';
 import empireRoutes    from './routes/empire.js';
+import mapRoutes       from './routes/map.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -60,6 +61,7 @@ app.use('/api/auth',      authRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/rulesets',  rulesetRoutes);
 app.use('/api/empire',    empireRoutes);
+app.use('/api/map',       mapRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {

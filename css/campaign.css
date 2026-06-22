@@ -378,6 +378,37 @@ body {
   margin-left: auto;
 }
 
+/* Empire tabs */
+.empire-tabs {
+  display: flex;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.emp-tab {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font);
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 4px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.emp-tab:last-child { border-right: none; }
+.emp-tab:hover { color: var(--text); }
+.emp-tab.active { color: var(--text-hi); background: var(--border); }
+
+/* Empire body — wraps both content panels */
+.empire-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
 /* Empire content layout */
 .empire-content {
   display: grid;
@@ -387,6 +418,13 @@ body {
   overflow: hidden;
   gap: 1px;
   background: var(--border);
+}
+
+/* Map container */
+#map-container {
+  flex: 1;
+  overflow: hidden;
+  background: #0a0a0a;
 }
 
 .emp-panel {
@@ -627,6 +665,7 @@ body {
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 800px) {
+  .empire-body { flex-direction: column; }
   .empire-content {
     grid-template-columns: 1fr;
     grid-template-rows: auto;

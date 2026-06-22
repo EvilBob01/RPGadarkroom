@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import knex from '../db/knex.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 import { rulesetExists, loadRuleset } from '../services/ruleset.js';
+import { generateMap } from '../services/mapgen.js';
 
 const router = Router();
 
@@ -372,6 +373,12 @@ router.post('/:id/start', requireAuth, async (req, res) => {
       status:     'active',
       started_at: new Date(),
     });
+
+    // Generate the campaign map (idempotent — safe to call again if retried)
+    const campaignPlayers = await knex('campaign_players')
+      .where({ campaign_id: campaign.id })
+      .select('id', 'user_id');
+    await generateMap(campaign, campaignPlayers);
 
     return res.json({ message: 'Campaign started!', status: 'active' });
   } catch (err) {

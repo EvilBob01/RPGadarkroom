@@ -45,6 +45,9 @@ export const api = {
   listRulesets:    ()          => req('GET',  '/rulesets'),
   getRuleset:      (id)        => req('GET',  `/rulesets/${id}`),
 
+  // ── Map ─────────────────────────────────────────────────────────────────
+  getMap:          (cid)       => req('GET',  `/map/${cid}`),
+
   // ── Empire ──────────────────────────────────────────────────────────────
   getEmpire:       (cid)       => req('GET',  `/empire/${cid}`),
   build:           (cid, b)    => req('POST', `/empire/${cid}/build`, b),
